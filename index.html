@@ -368,6 +368,81 @@
             margin-top: 0.5rem;
         }
 
+        /* New Styles for Amount Options and Words */
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .amount-option {
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius);
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .amount-option:hover {
+            border-color: var(--primary);
+            background: rgba(0, 100, 0, 0.05);
+        }
+
+        .amount-option.selected {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .amount-in-words {
+            margin-top: 0.5rem;
+            padding: 0.8rem;
+            background: rgba(0, 100, 0, 0.05);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--primary);
+            font-style: italic;
+            min-height: 50px;
+        }
+
+        .official-docs-link {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .official-docs-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .official-docs-link a:hover {
+            text-decoration: underline;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
+        .disclaimer h4 {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .onboarding-footer {
             display: flex;
             justify-content: space-between;
@@ -711,6 +786,10 @@
             .payment-methods, .feature-grid {
                 grid-template-columns: 1fr;
             }
+
+            .amount-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -792,6 +871,11 @@
                     </div>
                 </div>
 
+                <div class="disclaimer">
+                    <h4><i class="fas fa-info-circle"></i> Important Disclaimer</h4>
+                    <p>This tool provides estimates for informational purposes only. Tax laws change frequently and your actual tax liability may vary. Always consult with a qualified tax professional for personalized advice.</p>
+                </div>
+
                 <div class="onboarding-footer">
                     <div></div> <!-- Empty div for spacing -->
                     <button class="btn btn-accent" id="step-1-next" disabled>
@@ -841,7 +925,22 @@
                 <div class="input-group">
                     <label for="income-amount" id="income-label">Annual Income (₦)</label>
                     <input type="number" id="income-amount" class="input-control" placeholder="Enter amount">
+                    
+                    <div class="amount-options" id="income-amount-options">
+                        <!-- Amount options will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="amount-in-words" id="income-amount-words">
+                        Amount in words will appear here
+                    </div>
+                    
                     <div class="input-hint" id="income-hint">This helps us calculate your tax accurately</div>
+                </div>
+
+                <div class="official-docs-link">
+                    <a href="https://www.firs.gov.ng" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> View Official FIRS Tax Guidelines
+                    </a>
                 </div>
 
                 <div class="onboarding-footer">
@@ -869,7 +968,22 @@
                 <div class="input-group">
                     <label for="allowances" id="allowances-label">Annual Allowances & Deductions (₦)</label>
                     <input type="number" id="allowances" class="input-control" placeholder="Enter amount (optional)">
+                    
+                    <div class="amount-options" id="allowances-amount-options">
+                        <!-- Amount options will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="amount-in-words" id="allowances-amount-words">
+                        Amount in words will appear here
+                    </div>
+                    
                     <div class="input-hint" id="allowances-hint">Examples: Pension contributions, NHF, dependents</div>
+                </div>
+
+                <div class="official-docs-link">
+                    <a href="https://www.firs.gov.ng/individuals/allowable-deductions" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> View Official Allowable Deductions
+                    </a>
                 </div>
 
                 <div class="onboarding-footer">
@@ -954,6 +1068,17 @@
             <div class="tax-tip">
                 <h4><i class="fas fa-lightbulb"></i> Smart Tax Tip</h4>
                 <p id="optimization-tip">Based on your profile, we recommend maximizing your pension contributions to reduce taxable income.</p>
+            </div>
+
+            <div class="disclaimer">
+                <h4><i class="fas fa-info-circle"></i> Important Disclaimer</h4>
+                <p>This calculation is an estimate based on the information provided. Actual tax liability may vary based on specific circumstances, recent tax law changes, and additional factors not considered in this calculation. Always consult with a qualified tax professional for personalized advice.</p>
+            </div>
+
+            <div class="official-docs-link" style="text-align: center; margin-top: 1rem;">
+                <a href="https://www.firs.gov.ng" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Verify with Official FIRS Guidelines
+                </a>
             </div>
 
             <div class="actions">
@@ -1492,6 +1617,18 @@
             }
         ];
 
+        // Common amount options for different user types
+        const amountOptions = {
+            individual: {
+                income: [500000, 1000000, 2000000, 5000000, 10000000],
+                allowances: [50000, 100000, 200000, 500000, 1000000]
+            },
+            business: {
+                income: [1000000, 5000000, 10000000, 25000000, 50000000, 100000000],
+                allowances: [100000, 500000, 1000000, 2500000, 5000000]
+            }
+        };
+
         // User data object to store responses
         const userData = {
             userType: null, // 'individual' or 'business'
@@ -1590,6 +1727,109 @@
             startAutoSlide();
         }
 
+        // Number to words conversion function
+        function numberToWords(num) {
+            if (num === 0) return "Zero Naira";
+            
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const scales = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
+            
+            // Handle negative numbers
+            if (num < 0) {
+                return 'Negative ' + numberToWords(Math.abs(num));
+            }
+            
+            let words = '';
+            
+            // Convert number to string and split into integer and decimal parts
+            const numStr = num.toString();
+            const parts = numStr.split('.');
+            const integerPart = parseInt(parts[0]);
+            const decimalPart = parts[1] ? parseInt(parts[1].padEnd(2, '0').substring(0, 2)) : 0;
+            
+            // Convert integer part
+            if (integerPart === 0) {
+                words = 'Zero';
+            } else {
+                let count = 0;
+                let n = integerPart;
+                
+                while (n > 0) {
+                    if (n % 1000 !== 0) {
+                        let chunk = '';
+                        const x = n % 1000;
+                        
+                        if (x < 20) {
+                            chunk = ones[x];
+                        } else if (x < 100) {
+                            chunk = tens[Math.floor(x / 10)] + (x % 10 !== 0 ? '-' + ones[x % 10] : '');
+                        } else {
+                            chunk = ones[Math.floor(x / 100)] + ' Hundred ' + (x % 100 !== 0 ? 'and ' + numberToWords(x % 100) : '');
+                        }
+                        
+                        words = chunk + (scales[count] ? ' ' + scales[count] + ' ' : '') + words;
+                    }
+                    n = Math.floor(n / 1000);
+                    count++;
+                }
+                
+                // Clean up extra spaces
+                words = words.replace(/\s+/g, ' ').trim();
+            }
+            
+            // Add "Naira"
+            let result = words + ' Naira';
+            
+            // Add kobo if there's a decimal part
+            if (decimalPart > 0) {
+                let koboWords = '';
+                if (decimalPart < 20) {
+                    koboWords = ones[decimalPart];
+                } else {
+                    koboWords = tens[Math.floor(decimalPart / 10)] + (decimalPart % 10 !== 0 ? '-' + ones[decimalPart % 10] : '');
+                }
+                result += ' and ' + koboWords + ' Kobo';
+            }
+            
+            return result;
+        }
+
+        // Function to create amount options
+        function createAmountOptions(containerId, options, currentValue, onSelect) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            options.forEach(amount => {
+                const option = document.createElement('div');
+                option.className = 'amount-option';
+                if (currentValue === amount) {
+                    option.classList.add('selected');
+                }
+                option.textContent = '₦' + amount.toLocaleString();
+                option.addEventListener('click', () => {
+                    onSelect(amount);
+                    
+                    // Update selected state
+                    document.querySelectorAll(`#${containerId} .amount-option`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+                container.appendChild(option);
+            });
+        }
+
+        // Function to update amount in words display
+        function updateAmountInWords(amount, wordsContainerId) {
+            const wordsContainer = document.getElementById(wordsContainerId);
+            if (amount && amount > 0) {
+                wordsContainer.textContent = numberToWords(amount);
+            } else {
+                wordsContainer.textContent = 'Amount in words will appear here';
+            }
+        }
+
         // Modal functionality
         function openModal(title, content) {
             modalTitle.textContent = title;
@@ -1618,15 +1858,15 @@
                         <h4>Taxpayer Service Centers</h4>
                         <div class="contact-item">
                             <i class="fas fa-phone"></i>
-                            <span>0907 031 9464 (Lagos)</span>
+                            <span>070 0225 55477 (Lagos)</span>
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-phone"></i>
-                            <span>+234 (0) 20 9460 2700 (Abuja)</span>
+                            <span>020 9460 2700 (Abuja)</span>
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-phone"></i>
-                            <span>+234 907 444 4441  (Port Harcourt)</span>
+                            <span>0815 242 5931 (Port Harcourt)</span>
                         </div>
                         
                         <h4>Digital Channels</h4>
@@ -1987,11 +2227,37 @@
                 step3Description.textContent = "Enter your total income for the year";
                 incomeLabel.textContent = "Annual Income (₦)";
                 incomeHint.textContent = "This helps us calculate your tax accurately";
+                
+                // Create amount options for individual income
+                createAmountOptions(
+                    'income-amount-options', 
+                    amountOptions.individual.income, 
+                    userData.incomeAmount,
+                    (amount) => {
+                        userData.incomeAmount = amount;
+                        document.getElementById('income-amount').value = amount;
+                        updateAmountInWords(amount, 'income-amount-words');
+                        document.getElementById('step-3-next').disabled = false;
+                    }
+                );
             } else {
                 step3Title.textContent = "What Is Your Annual Turnover?";
                 step3Description.textContent = "Enter your business's total turnover for the year";
                 incomeLabel.textContent = "Annual Turnover (₦)";
                 incomeHint.textContent = "Your turnover is the total amount of money your business makes";
+                
+                // Create amount options for business income
+                createAmountOptions(
+                    'income-amount-options', 
+                    amountOptions.business.income, 
+                    userData.incomeAmount,
+                    (amount) => {
+                        userData.incomeAmount = amount;
+                        document.getElementById('income-amount').value = amount;
+                        updateAmountInWords(amount, 'income-amount-words');
+                        document.getElementById('step-3-next').disabled = false;
+                    }
+                );
             }
             
             goToStep(3);
@@ -2006,6 +2272,19 @@
         document.getElementById('income-amount').addEventListener('input', function() {
             const value = parseFloat(this.value) || 0;
             userData.incomeAmount = value;
+            
+            // Update amount in words
+            updateAmountInWords(value, 'income-amount-words');
+            
+            // Update selected amount option
+            document.querySelectorAll('#income-amount-options .amount-option').forEach(option => {
+                const optionAmount = parseInt(option.textContent.replace('₦', '').replace(/,/g, ''));
+                if (optionAmount === value) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
             
             // Enable next button if value is valid
             document.getElementById('step-3-next').disabled = value <= 0;
@@ -2024,11 +2303,35 @@
                 step4Description.textContent = "These can reduce the amount of tax you pay";
                 allowancesLabel.textContent = "Annual Allowances & Deductions (₦)";
                 allowancesHint.textContent = "Examples: Pension contributions, NHF, dependents";
+                
+                // Create amount options for individual allowances
+                createAmountOptions(
+                    'allowances-amount-options', 
+                    amountOptions.individual.allowances, 
+                    userData.allowances,
+                    (amount) => {
+                        userData.allowances = amount;
+                        document.getElementById('allowances').value = amount;
+                        updateAmountInWords(amount, 'allowances-amount-words');
+                    }
+                );
             } else {
                 step4Title.textContent = "Any Business Expenses or Deductions?";
                 step4Description.textContent = "These can reduce the amount of tax your business pays";
                 allowancesLabel.textContent = "Annual Business Expenses (₦)";
                 allowancesHint.textContent = "Examples: Employee salaries, rent, equipment costs";
+                
+                // Create amount options for business allowances
+                createAmountOptions(
+                    'allowances-amount-options', 
+                    amountOptions.business.allowances, 
+                    userData.allowances,
+                    (amount) => {
+                        userData.allowances = amount;
+                        document.getElementById('allowances').value = amount;
+                        updateAmountInWords(amount, 'allowances-amount-words');
+                    }
+                );
             }
             
             goToStep(4);
@@ -2043,6 +2346,19 @@
         document.getElementById('allowances').addEventListener('input', function() {
             const value = parseFloat(this.value) || 0;
             userData.allowances = value;
+            
+            // Update amount in words
+            updateAmountInWords(value, 'allowances-amount-words');
+            
+            // Update selected amount option
+            document.querySelectorAll('#allowances-amount-options .amount-option').forEach(option => {
+                const optionAmount = parseInt(option.textContent.replace('₦', '').replace(/,/g, ''));
+                if (optionAmount === value) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
         });
 
         // Step 4 Next Button
@@ -2084,6 +2400,10 @@
             document.getElementById('step-1-next').disabled = true;
             document.getElementById('step-2-next').disabled = true;
             document.getElementById('step-3-next').disabled = true;
+            
+            // Reset amount in words
+            updateAmountInWords(0, 'income-amount-words');
+            updateAmountInWords(0, 'allowances-amount-words');
             
             // Show onboarding, hide results
             onboardingContainer.style.display = 'block';
